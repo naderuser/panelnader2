@@ -1686,6 +1686,7 @@ function teacherPage() {
         
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
         <script>pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
         
         <div class="upload-zone" id="pdf-drop-zone">
           <input type="file" accept="application/pdf" id="pdf-file" class="hidden">
@@ -1751,6 +1752,67 @@ function teacherPage() {
             </button>
             <button class="btn gray" id="btn-pdf-clear-previews">
               <span>🗑️</span> پاک کردن پیش‌نمایش‌ها
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- تبدیل PDF به Word -->
+      <div class="card tab-content hidden" id="tab-pdf2word">
+        <div class="section-header">
+          <div>
+            <h3>📝 تبدیل PDF به Word</h3>
+            <p class="muted">محتوای متنی PDF را به فایل Word تبدیل کنید</p>
+          </div>
+        </div>
+        
+        <div class="upload-zone" id="word-drop-zone">
+          <input type="file" accept="application/pdf" id="word-file" class="hidden">
+          <div class="upload-icon">📄</div>
+          <p>فایل PDF را اینجا رها کنید یا کلیک کنید</p>
+          <span class="muted">تبدیل به Word با حفظ پاراگراف‌ها</span>
+        </div>
+        
+        <div id="word-controls" class="hidden" style="margin-top:16px">
+          <div class="pdf-info" style="margin-bottom:16px;padding:12px;background:#f0fdf4;border-radius:8px;border:2px solid #bbf7d0">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <strong id="word-pdf-name">فایل PDF</strong>
+                <span class="muted" style="margin-right:12px">تعداد صفحات: <strong id="word-pages-count">0</strong></span>
+              </div>
+              <button class="btn sm danger" id="word-remove">🗑️ حذف</button>
+            </div>
+          </div>
+          
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:16px">
+            <h4 style="margin-bottom:12px">⚙️ تنظیمات تبدیل</h4>
+            <div style="display:flex;flex-wrap:wrap;gap:16px">
+              <label class="checkbox-label">
+                <input type="checkbox" id="word-keep-format" checked>
+                حفظ قالب‌بندی پاراگراف‌ها
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="word-rtl" checked>
+                جهت راست به چپ (RTL)
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="word-numbers">
+                شماره‌گذاری صفحات
+              </label>
+            </div>
+          </div>
+          
+          <div id="word-preview" style="max-height:400px;overflow-y:auto;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:16px">
+            <h4 style="margin-bottom:12px">📋 پیش‌نمایش متن:</h4>
+            <div id="word-preview-content" style="font-family:'BNazanin',tahoma,serif;line-height:2;text-align:right;direction:rtl"></div>
+          </div>
+          
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn primary" id="btn-word-convert">
+              <span>🔄</span> تبدیل به Word
+            </button>
+            <button class="btn success" id="btn-word-download" disabled>
+              <span>📥</span> دانلود Word
             </button>
           </div>
         </div>
@@ -1905,44 +1967,66 @@ function teacherScript() {
   };
   
   function getScheduleHtml(){
-    var school=document.getElementById('sch-school').value;
-    var year=document.getElementById('sch-year').value;
-    var topic=document.getElementById('sch-topic').value;
-    var principal=document.getElementById('sch-principal').value;
-    var cls=document.getElementById('sch-class').value;
-    var teacher=document.getElementById('sch-teacher').value;
+    var school=document.getElementById('sch-school').value||'مدرسه';
+    var year=document.getElementById('sch-year').value||'';
+    var topic=document.getElementById('sch-topic').value||'';
+    var principal=document.getElementById('sch-principal').value||'';
+    var cls=document.getElementById('sch-class').value||'';
+    var teacher=document.getElementById('sch-teacher').value||'';
     var days=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه'];
     var zang=['زنگ اول','زنگ دوم','زنگ سوم','زنگ چهارم','زنگ پنجم'];
-    var style='<style>@font-face{font-family:"BNazanin";src:url(https://cdn.jsdelivr.net/gh/naderuser/bnazanin@main/BNazanin.ttf)}body{direction:rtl;font-family:"BNazanin",tahoma,Arial;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:10px;text-align:center}th{background:#667eea;color:#fff}td:first-child{background:#eee;font-weight:bold}</style>';
-    var header='<div style="text-align:center"><h2>'+school+'</h2><p><b>سال تحصیلی:</b> '+year+' | <b>موضوع:</b> '+topic+'</p><p><b>نام مدیر:</b> '+principal+' | <b>نام آموزگار:</b> '+teacher+'</p><p><b>کلاس:</b> '+cls+'</p></div>';
-    var table='<table><tr><th>روز / زنگ</th>';
-    for(var z=0;z<5;z++){table=table+'<th>'+zang[z]+'</th>';}
+    var dayColors=[
+      'linear-gradient(135deg,#ff9a9e,#fecfef)',
+      'linear-gradient(135deg,#fddb92,#d1fdff)',
+      'linear-gradient(135deg,#a1ffce,#faffbd)',
+      'linear-gradient(135deg,#e0c3fc,#8ec5fc)',
+      'linear-gradient(135deg,#a8edea,#fed6e3)'
+    ];
+    var cellColors=[
+      '#fff5f5','#fffef0','#f0fff4','#f8f0ff','#f0ffff'
+    ];
+    var style='<style>@font-face{font-family:"BNazanin";src:url(https://cdn.jsdelivr.net/gh/naderuser/bnazanin@main/BNazanin.ttf)}';
+    style+='body{direction:rtl;font-family:"BNazanin",tahoma,Arial;padding:30px;background:#f8fafc}';
+    style+='.header{text-align:center;padding:20px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:20px;margin-bottom:20px;box-shadow:0 4px 15px rgba(102,126,234,0.3)}';
+    style+='.header h1{font-size:24px;margin:0 0 10px}.header p{margin:5px 0;font-size:14px}';
+    style+='table{width:100%;border-collapse:separate;border-spacing:0;border-radius:15px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.1)}';
+    style+='th{border:none;padding:12px 8px;font-size:14px;color:#fff;text-align:center}';
+    style+='td{border:none;padding:15px 8px;text-align:center;font-size:13px;min-height:50px}';
+    style+='.footer{text-align:center;margin-top:30px;padding:20px;border-top:2px dashed #ddd}';
+    style+='.footer p{margin:10px 0}</style>';
+    
+    var header='<div class="header"><h1>⭐ برنامه هفتگی کلاس ⭐</h1><p>🏫 '+school+' | سال تحصیلی: '+year+'</p><p>کلاس: '+cls+' | آموزگار: '+teacher+'</p></div>';
+    
+    var table='<table>';
+    table+='<tr><th style="background:#555">روز / زنگ</th>';
+    for(var z=0;z<5;z++){table=table+'<th style="background:'+dayColors[z]+';color:#333">🔔 '+zang[z]+'</th>';}
     table=table+'</tr>';
     for(var d=0;d<5;d++){
-      table=table+'<tr><td>'+days[d]+'</td>';
+      table=table+'<tr><td style="background:#eee;font-weight:bold;color:#333">'+days[d]+'</td>';
       for(var i=1;i<=5;i++){
         var el=document.getElementById('c'+d+i);
-        table=table+'<td>'+(el?el.value:'')+'</td>';
+        var val=(el?el.value:'')||'&nbsp;';
+        table=table+'<td style="background:'+cellColors[d]+';color:#333"><div style="min-height:40px">'+val+'</div></td>';
       }
       table=table+'</tr>';
     }
     table=table+'</table>';
-    return '<html><head><meta charset="utf-8">'+style+'</head><body>'+header+table+'</body></html>';
+    var footer='<div class="footer"><p>امضای مدیر: ___________________</p><p>تاریخ: ___________________</p></div>';
+    return '<html><head><meta charset="utf-8">'+style+'</head><body>'+header+table+footer+'</body></html>';
   }
   
   document.getElementById('btn-print-schedule').onclick=function(){
-    var html='<html><head><meta charset="utf-8"><style>@font-face{font-family:"BNazanin";src:url(https://cdn.jsdelivr.net/gh/naderuser/bnazanin@main/BNazanin.ttf)}@media print{@page{size:A4 portrait}}body{direction:rtl;font-family:"BNazanin",tahoma,Arial;padding:15px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:10px;text-align:center}th{background:#667eea;color:#fff}td:first-child{background:#eee;font-weight:bold}</style></head><body>'+getScheduleHtml().replace('<html><head><meta charset="utf-8"><style>@font-face{font-family:"BNazanin";src:url(https://cdn.jsdelivr.net/gh/naderuser/bnazanin@main/BNazanin.ttf)}body{direction:rtl;font-family:"BNazanin",tahoma,Arial;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:10px;text-align:center}th{background:#667eea;color:#fff}td:first-child{background:#eee;font-weight:bold}</style></head><body>','')+'</body></html>';
     var w=window.open('','_blank');
-    w.document.write(html);
+    w.document.write(getScheduleHtml());
     w.document.close();
-    w.print();
+    setTimeout(function(){w.print();},500);
   };
   
   document.getElementById('btn-word-schedule').onclick=function(){
     var blob=new Blob([getScheduleHtml()],{type:'application/msword'});
     var a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download='برنامه-هفتگی.doc';
+    a.download='برنامه-هفتگی-زیبا.doc';
     a.click();
   };
   
@@ -3275,6 +3359,95 @@ function teacherScript() {
       },i*300);
     });
     toast('دانلود '+blobs.length+' فایل شروع شد ✅');
+  };
+
+  // ---- PDF to Word ----
+  let wordPdfDoc=null, wordFileName='';
+  
+  const wordDropZone=document.getElementById('word-drop-zone');
+  const wordFileInput=document.getElementById('word-file');
+  wordDropZone.onclick=()=>wordFileInput.click();
+  wordDropZone.addEventListener('dragover',e=>{e.preventDefault();wordDropZone.classList.add('dragover');});
+  wordDropZone.addEventListener('dragleave',()=>wordDropZone.classList.remove('dragover'));
+  wordDropZone.addEventListener('drop',e=>{e.preventDefault();wordDropZone.classList.remove('dragover');handleWordFile(e.dataTransfer.files[0]);});
+  wordFileInput.addEventListener('change',function(){if(this.files[0])handleWordFile(this.files[0]);});
+  
+  async function handleWordFile(file){
+    if(!file||file.type!=='application/pdf'){toast('فقط فایل PDF مجاز است');return;}
+    wordFileName=file.name;
+    document.getElementById('word-pdf-name').textContent=file.name;
+    document.getElementById('word-controls').classList.remove('hidden');
+    const arrayBuffer=await file.arrayBuffer();
+    wordPdfDoc=await PDFLib.PDFDocument.load(arrayBuffer);
+    document.getElementById('word-pages-count').textContent=wordPdfDoc.getPageCount();
+    document.getElementById('word-preview-content').innerHTML='<p class="muted">برای مشاهده متن، روی "تبدیل به Word" کلیک کنید</p>';
+    document.getElementById('btn-word-download').disabled=true;
+  }
+  
+  document.getElementById('word-remove').onclick=()=>{
+    wordPdfDoc=null;wordFileName='';
+    document.getElementById('word-controls').classList.add('hidden');
+    document.getElementById('word-file').value='';
+    document.getElementById('word-preview-content').innerHTML='';
+  };
+  
+  document.getElementById('btn-word-convert').onclick=async()=>{
+    if(!wordPdfDoc){toast('ابتدا فایل PDF را انتخاب کنید');return;}
+    const btn=document.getElementById('btn-word-convert');
+    btn.disabled=true;btn.textContent='در حال پردازش...';
+    try{
+      const keepFormat=document.getElementById('word-keep-format').checked;
+      const isRTL=document.getElementById('word-rtl').checked;
+      const addNumbers=document.getElementById('word-numbers').checked;
+      const pages=wordPdfDoc.getPages();
+      let html='<html><head><meta charset="utf-8">';
+      html+='<style>body{font-family:"BNazanin",Tahoma,Arial;direction:'+(isRTL?'rtl':'ltr')+';padding:20px;line-height:2;white-space:pre-wrap}.page{margin-bottom:30px;border-bottom:1px solid #ddd;padding-bottom:20px}.pnum{text-align:center;color:#888;font-size:12px;margin-bottom:10px}</style>';
+      html+='</head><body>';
+      for(let pi=0;pi<pages.length;pi++){
+        const page=pages[pi];
+        if(addNumbers)html+='<div class="page">';
+        if(addNumbers)html+='<div class="pnum">صفحه '+(pi+1)+'</div>';
+        const text=await page.getTextContent();
+        let para='';
+        if(keepFormat){
+          const items=text.items;
+          let lastY=null;
+          for(const item of items){
+            const y=Math.round(item.transform[5]);
+            if(lastY!==null&&y!==lastY){
+              html+=(para?'</p>':'')+'<p style="margin:4px 0">'+item.str;
+              para=true;
+            }else{
+              html+=item.str;
+            }
+            lastY=y;
+          }
+          if(para)html+='</p>';
+        }else{
+          html+='<p>'+text.items.map(i=>i.str).join(' ')+'</p>';
+        }
+        if(addNumbers)html+='</div>';
+      }
+      html+='</body></html>';
+      document.getElementById('word-preview-content').innerHTML=html;
+      window._wordHtml=html;
+      window._wordFileName=wordFileName.replace('.pdf','.html');
+      document.getElementById('btn-word-download').disabled=false;
+      toast('تبدیل انجام شد ✅');
+    }catch(err){
+      toast('خطا در پردازش PDF: '+err.message);
+    }
+    btn.disabled=false;btn.innerHTML='<span>🔄</span> تبدیل به Word';
+  };
+  
+  document.getElementById('btn-word-download').onclick=()=>{
+    if(!window._wordHtml){toast('ابتدا تبدیل را انجام دهید');return;}
+    const blob=new Blob([window._wordHtml],{type:'application/msword'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=window._wordFileName||'document.doc';
+    a.click();
+    toast('فایل Word دانلود شد ✅');
   };
 
   checkAuth();
