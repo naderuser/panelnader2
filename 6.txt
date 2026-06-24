@@ -1584,37 +1584,88 @@ function teacherPage() {
       <div class="card tab-content hidden" id="tab-translate">
         <div class="section-header">
           <div>
-            <h3>🌐 ترجمه متن</h3>
-            <p class="muted">متن را از فارسی به انگلیسی یا برعکس ترجمه کنید</p>
+            <h3>🌐 ترجمه متن و فایل</h3>
+            <p class="muted">متن و فایل را به زبان‌های مختلف ترجمه کنید</p>
           </div>
         </div>
-        <div style="margin-bottom:16px">
-          <label style="margin-left:16px">زبان مبدا:</label>
-          <select id="tl-from" style="padding:8px;border:1px solid #ddd;border-radius:6px">
-            <option value="fa">فارسی</option>
-            <option value="en">انگلیسی</option>
+        
+        <div style="margin-bottom:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+          <select id="tl-from" style="padding:10px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px">
+            <option value="auto">🔍 تشخیص خودکار</option>
+            <option value="fa">🇮🇷 فارسی</option>
+            <option value="en">🇬🇧 انگلیسی</option>
+            <option value="ar">🇸🇦 عربی</option>
+            <option value="tr">🇹🇷 ترکی</option>
+            <option value="ru">🇷🇺 روسی</option>
+            <option value="zh">🇨🇳 چینی</option>
+            <option value="fr">🇫🇷 فرانسوی</option>
+            <option value="de">🇩🇪 آلمانی</option>
+            <option value="es">🇪🇸 اسپانیایی</option>
+            <option value="ja">🇯🇵 ژاپنی</option>
+            <option value="ko">🇰🇷 کره‌ای</option>
           </select>
-          <button class="btn sm" onclick="tlSwap()" style="margin:0 8px">⇄</button>
-          <label style="margin-left:16px">زبان مقصد:</label>
-          <select id="tl-to" style="padding:8px;border:1px solid #ddd;border-radius:6px">
-            <option value="en">انگلیسی</option>
-            <option value="fa">فارسی</option>
+          <button class="btn sm secondary" onclick="tlSwap()" style="padding:10px 16px;font-size:18px">⇄</button>
+          <select id="tl-to" style="padding:10px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px">
+            <option value="en" selected>🇬🇧 انگلیسی</option>
+            <option value="fa">🇮🇷 فارسی</option>
+            <option value="ar">🇸🇦 عربی</option>
+            <option value="tr">🇹🇷 ترکی</option>
+            <option value="ru">🇷🇺 روسی</option>
+            <option value="zh">🇨🇳 چینی</option>
+            <option value="fr">🇫🇷 فرانسوی</option>
+            <option value="de">🇩🇪 آلمانی</option>
+            <option value="es">🇪🇸 اسپانیایی</option>
+            <option value="ja">🇯🇵 ژاپنی</option>
+            <option value="ko">🇰🇷 کره‌ای</option>
           </select>
+          <div id="tl-detected" style="display:none;padding:8px 16px;background:#e0f2fe;border-radius:8px;font-size:13px">
+            <span class="muted">زبان شناسایی‌شده: </span><strong id="tl-detected-lang">-</strong>
+          </div>
         </div>
+        
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div>
-            <label>متن ورودی:</label>
-            <textarea id="tl-input" rows="8" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;resize:vertical;font-family:inherit" placeholder="متن خود را اینجا بنویسید..."></textarea>
+            <label>📝 متن ورودی:</label>
+            <textarea id="tl-input" rows="8" style="width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:10px;resize:vertical;font-family:inherit;font-size:14px" placeholder="متن خود را اینجا بنویسید یا فایل آپلود کنید..."></textarea>
           </div>
           <div>
-            <label>ترجمه:</label>
-            <textarea id="tl-output" rows="8" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;resize:vertical;font-family:inherit;background:#f8fafc" readonly placeholder="ترجمه اینجا نمایش داده می‌شود..."></textarea>
+            <label>✨ ترجمه:</label>
+            <textarea id="tl-output" rows="8" style="width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:10px;resize:vertical;font-family:inherit;font-size:14px;background:#f0fdf4" readonly placeholder="ترجمه اینجا نمایش داده می‌شود..."></textarea>
           </div>
         </div>
-        <div style="margin-top:16px;display:flex;gap:10px">
+        
+        <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:10px">
           <button class="btn primary" id="btn-translate">🌐 ترجمه کن</button>
           <button class="btn" onclick="tlCopy()">📋 کپی ترجمه</button>
           <button class="btn gray" onclick="tlClear()">🗑️ پاک کردن</button>
+        </div>
+        
+        <!-- ترجمه فایل -->
+        <div style="margin-top:24px;padding-top:24px;border-top:2px dashed #e2e8f0">
+          <h4 style="margin-bottom:12px">📎 ترجمه فایل</h4>
+          <div class="upload-zone" id="tl-file-zone" style="padding:30px">
+            <input type="file" accept=".txt,.pdf,.doc,.docx" id="tl-file-input" class="hidden">
+            <div class="upload-icon">📄</div>
+            <p>فایل متنی (TXT, PDF, Word) آپلود کنید</p>
+            <span class="muted">برای ترجمه فایل، آن را اینجا رها کنید</span>
+          </div>
+          <div id="tl-file-info" class="hidden" style="margin-top:12px;padding:12px;background:#f0fdf4;border-radius:10px;border:2px solid #bbf7d0">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <strong id="tl-file-name">فایل</strong>
+                <span class="muted" style="margin-right:12px" id="tl-file-size"></span>
+              </div>
+              <button class="btn sm danger" onclick="tlRemoveFile()">🗑️ حذف</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- سوابق ترجمه -->
+        <div style="margin-top:24px;padding-top:24px;border-top:2px dashed #e2e8f0">
+          <h4 style="margin-bottom:12px">📋 سوابق ترجمه</h4>
+          <div id="tl-history" style="max-height:200px;overflow-y:auto">
+            <p class="muted" id="tl-no-history">هنوز ترجمه‌ای انجام نشده است.</p>
+          </div>
         </div>
       </div>
 
@@ -2675,9 +2726,46 @@ function teacherScript() {
     if(f===t.value){t.value=f==='fa'?'en':'fa';}
   };
   
+  // ---- ترجمه پیشرفته ----
+  const LANG_NAMES={'auto':'تشخیص خودکار','fa':'فارسی','en':'انگلیسی','ar':'عربی','tr':'ترکی','ru':'روسی','zh':'چینی','fr':'فرانسوی','de':'آلمانی','es':'اسپانیایی','ja':'ژاپنی','ko':'کره‌ای'};
+  
+  let tlFileContent=null;
+  
+  // Load history
+  let tlHistory=JSON.parse(localStorage.getItem('tlHistory')||'[]');
+  function renderTlHistory(){
+    const box=document.getElementById('tl-history');
+    const noHist=document.getElementById('tl-no-history');
+    if(!tlHistory.length){
+      noHist.style.display='block';
+      box.innerHTML=noHist.outerHTML;
+      return;
+    }
+    noHist.style.display='none';
+    box.innerHTML=tlHistory.slice(0,10).map((h,i)=>
+      '<div style="padding:10px;background:#f8fafc;border-radius:8px;margin-bottom:8px;cursor:pointer" onclick="tlRestore('+i+')">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center">'+
+          '<span><b>'+LANG_NAMES[h.from]+'</b> → <b>'+LANG_NAMES[h.to]+'</b></span>'+
+          '<span style="color:#888;font-size:12px">'+h.time+'</span>'+
+        '</div>'+
+        '<div style="font-size:13px;color:#666;margin-top:4px" class="tl-hist-preview">'+h.input.substring(0,50)+(h.input.length>50?'...':'')+'</div>'+
+      '</div>'
+    ).join('');
+  }
+  renderTlHistory();
+  
+  window.tlRestore=function(i){
+    const h=tlHistory[i];
+    document.getElementById('tl-from').value=h.from;
+    document.getElementById('tl-to').value=h.to;
+    document.getElementById('tl-input').value=h.input;
+    document.getElementById('tl-output').value=h.output;
+  };
+  
   window.tlSwap=function(){
     var f=document.getElementById('tl-from');
     var t=document.getElementById('tl-to');
+    if(f.value==='auto'){toast('نمی‌توان زبان مقصد را با تشخیص خودکار جابجا کرد');return;}
     var tmp=f.value;f.value=t.value;t.value=tmp;
     var inp=document.getElementById('tl-input');
     var out=document.getElementById('tl-output');
@@ -2693,19 +2781,66 @@ function teacherScript() {
   window.tlClear=function(){
     document.getElementById('tl-input').value='';
     document.getElementById('tl-output').value='';
+    document.getElementById('tl-detected').style.display='none';
   };
+  
+  window.tlRemoveFile=function(){
+    tlFileContent=null;
+    document.getElementById('tl-file-info').classList.add('hidden');
+    document.getElementById('tl-file-zone').classList.remove('hidden');
+    document.getElementById('tl-file-input').value='';
+  };
+  
+  // File upload for translation
+  const tlFileZone=document.getElementById('tl-file-zone');
+  const tlFileInput=document.getElementById('tl-file-input');
+  tlFileZone.onclick=()=>tlFileInput.click();
+  tlFileZone.addEventListener('dragover',e=>{e.preventDefault();tlFileZone.classList.add('dragover');});
+  tlFileZone.addEventListener('dragleave',()=>tlFileZone.classList.remove('dragover'));
+  tlFileZone.addEventListener('drop',e=>{e.preventDefault();tlFileZone.classList.remove('dragover');if(e.dataTransfer.files[0])handleTlFile(e.dataTransfer.files[0]);});
+  tlFileInput.addEventListener('change',function(){if(this.files[0])handleTlFile(this.files[0]);});
+  
+  async function handleTlFile(file){
+    document.getElementById('tl-file-name').textContent=file.name;
+    document.getElementById('tl-file-size').textContent=(file.size/1024).toFixed(1)+' KB';
+    document.getElementById('tl-file-info').classList.remove('hidden');
+    document.getElementById('tl-file-zone').classList.add('hidden');
+    
+    const text=await file.text();
+    tlFileContent=text;
+    document.getElementById('tl-input').value=text;
+    toast('فایل لود شد ✅');
+  }
   
   document.getElementById('btn-translate').onclick=async function(){
     var text=document.getElementById('tl-input').value.trim();
     if(!text){toast('متنی وارد نشده');return;}
     var from=document.getElementById('tl-from').value;
     var to=document.getElementById('tl-to').value;
+    if(from===to){toast('زبان مبدا و مقصد یکسان هستند');return;}
     var btn=this;btn.disabled=true;btn.textContent='⏳ در حال ترجمه...';
+    document.getElementById('tl-detected').style.display='none';
     try{
-      var res=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair='+from+'|'+to);
+      var apiFrom=from==='auto'?'fa':from;
+      var res=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair='+apiFrom+'|'+to);
       var data=await res.json();
       if(data.responseStatus===200 && data.responseData){
-        document.getElementById('tl-output').value=data.responseData.translatedText;
+        var result=data.responseData.translatedText;
+        document.getElementById('tl-output').value=result;
+        
+        // Save to history
+        var entry={from:from==='auto'?'fa':from,to:to,input:text,output:result,time:'الان'};
+        tlHistory.unshift(entry);
+        tlHistory=tlHistory.slice(0,20);
+        localStorage.setItem('tlHistory',JSON.stringify(tlHistory));
+        renderTlHistory();
+        
+        // Show detected language
+        if(from==='auto' && data.responseData.detectedLang){
+          document.getElementById('tl-detected').style.display='inline-flex';
+          document.getElementById('tl-detected-lang').textContent=LANG_NAMES[data.responseData.detectedLang]||data.responseData.detectedLang;
+        }
+        
         toast('ترجمه شد ✅');
       }else{toast('خطا در ترجمه');}
     }catch(e){toast('خطا در اتصال');}
