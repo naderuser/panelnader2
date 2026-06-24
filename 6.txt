@@ -853,6 +853,9 @@ const SHARED_CSS = `
   .format-btn{padding:8px 20px;border:2px solid #e2e8f0;border-radius:8px;background:#fff;cursor:pointer;font-weight:600;font-size:13px;transition:all .2s}
   .format-btn:hover{border-color:var(--primary-2)}
   .format-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .size-options{display:flex;flex-wrap:wrap;gap:12px}
+  .size-option{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px}
+  .size-option input[type=radio]{width:auto;cursor:pointer}
   .resize-preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:16px}
   .resize-item{position:relative;background:#f8fafc;border-radius:12px;padding:8px;border:1px solid #e2e8f0;text-align:center}
   .resize-item img{max-width:100%;max-height:120px;border-radius:8px}
@@ -882,12 +885,29 @@ const SHARED_CSS = `
   .ratio-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
   .crop-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
   
-  /* ---- برنامه هفتگی ---- */
-  .schedule-table-wrap{overflow-x:auto;border-radius:12px;border:2px solid #e2e8f0;background:#fff;margin-bottom:16px}
-  .schedule-table{width:100%;border-collapse:collapse}
-  .schedule-table th{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:12px 8px;font-weight:600;text-align:center}
-  .schedule-table td{border:1px solid #e2e8f0;padding:4px}
-  .schedule-table td:first-child{background:#f8fafc;font-weight:600;text-align:center}
+  /* ---- برنامه هفتگی کودکانه ---- */
+  .schedule-table-wrap{overflow-x:auto;border-radius:20px;border:4px solid #e2e8f0;background:#fff;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.12)}
+  .schedule-table{width:100%;border-collapse:collapse;border-radius:20px;overflow:hidden}
+  .schedule-table th{color:#fff;padding:14px 10px;font-weight:700;text-align:center;font-size:15px;text-shadow:0 1px 2px rgba(0,0,0,0.2)}
+  .schedule-table th.sh-shanbe{background:linear-gradient(135deg,#ff9a9e,#fecfef)}
+  .schedule-table th.sh-yekshanbe{background:linear-gradient(135deg,#fddb92,#d1fdff)}
+  .schedule-table th.sh-doshshanbe{background:linear-gradient(135deg,#a1ffce,#faffbd)}
+  .schedule-table th.sh-seshshanbe{background:linear-gradient(135deg,#e0c3fc,#8ec5fc)}
+  .schedule-table th.sh-chaharshanbe{background:linear-gradient(135deg,#a8edea,#fed6e3)}
+  .schedule-table th.sh-panjshanbe{background:linear-gradient(135deg,#ffecd2,#fcb69f)}
+  .schedule-table th.sh-jome{background:linear-gradient(135deg,#c9d6ff,#e2e2e2);color:#555}
+  .schedule-table td{border:2px solid #fff;padding:12px 8px;text-align:center;transition:transform 0.2s}
+  .schedule-table td:hover{transform:scale(1.02)}
+  .schedule-table td:first-child{background:#fff;font-weight:700;text-align:center;font-size:14px;color:#333}
+  .schedule-table td.cell-shanbe{background:linear-gradient(135deg,#fff5f5,#ffe6e6)}
+  .schedule-table td.cell-yekshanbe{background:linear-gradient(135deg,#fffef0,#fffadc)}
+  .schedule-table td.cell-doshshanbe{background:linear-gradient(135deg,#f0fff4,#d5f5e3)}
+  .schedule-table td.cell-seshshanbe{background:linear-gradient(135deg,#f8f0ff,#ead5ff)}
+  .schedule-table td.cell-chaharshanbe{background:linear-gradient(135deg,#f0ffff,#d5f5f5)}
+  .schedule-table td.cell-panjshanbe{background:linear-gradient(135deg,#fff5f0,#ffe5d5)}
+  .schedule-table td.cell-jome{background:linear-gradient(135deg,#f5f5f5,#e8e8e8);color:#666}
+  .schedule-lesson{background:#fff;border-radius:10px;padding:8px 6px;margin:4px 0;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.08);border:1px solid rgba(0,0,0,0.05)}
+  .bell-icon{font-size:16px;margin-left:4px}
   
   /* ---- AI Chat ---- */
   .ai-chat-container{background:linear-gradient(180deg,#f8fafc,#fff);border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;display:flex;flex-direction:column;height:550px}
@@ -1355,7 +1375,7 @@ function teacherPage() {
         </div>
         <div class="schedule-table-wrap">
           <table class="schedule-table" id="schedule-table">
-            <thead><tr><th>روز / زنگ</th><th>زنگ اول</th><th>زنگ دوم</th><th>زنگ سوم</th><th>زنگ چهارم</th><th>زنگ پنجم</th></tr></thead>
+            <thead><tr><th>روز / زنگ ⭐</th><th class="sh-shanbe">🔔 زنگ اول</th><th class="sh-yekshanbe">🔔 زنگ دوم</th><th class="sh-doshshanbe">🔔 زنگ سوم</th><th class="sh-seshshanbe">🔔 زنگ چهارم</th><th class="sh-chaharshanbe">🔔 زنگ پنجم</th></tr></thead>
             <tbody id="schedule-body"></tbody>
           </table>
         </div>
@@ -1509,11 +1529,39 @@ function teacherPage() {
             </div>
             
             <div class="resize-group">
+              <label>📏 اندازه خروجی</label>
+              <div class="size-options">
+                <label class="size-option"><input type="radio" name="resize-size" value="original" checked> حفظ اندازه اصلی</label>
+                <label class="size-option"><input type="radio" name="resize-size" value="1920"> 1920px (بزرگ)</label>
+                <label class="size-option"><input type="radio" name="resize-size" value="1280"> 1280px (متوسط)</label>
+                <label class="size-option"><input type="radio" name="resize-size" value="800"> 800px (کوچک)</label>
+              </div>
+            </div>
+            
+            <div class="resize-group">
               <label>📐 فرمت خروجی</label>
               <div class="format-options">
                 <button class="format-btn active" data-format="jpeg">JPEG</button>
                 <button class="format-btn" data-format="png">PNG</button>
                 <button class="format-btn" data-format="webp">WEBP</button>
+              </div>
+            </div>
+            
+            <div class="resize-group" id="resize-total-info" style="background:#e0f2fe;border:2px solid #93c5fd">
+              <label>📦 اطلاعات کلی</label>
+              <div style="display:flex;justify-content:space-between;margin-top:8px">
+                <div>
+                  <span class="muted">حجم اصلی:</span>
+                  <strong id="total-original-size">-</strong>
+                </div>
+                <div>
+                  <span class="muted">حجم جدید:</span>
+                  <strong id="total-new-size" style="color:#10b981">-</strong>
+                </div>
+                <div>
+                  <span class="muted">کاهش:</span>
+                  <strong id="total-reduction" style="color:#059669">-</strong>
+                </div>
               </div>
             </div>
           </div>
@@ -1845,10 +1893,11 @@ function teacherScript() {
     var body=document.getElementById('schedule-body');
     var html='';
     var days=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه'];
+    var dayClasses=['cell-shanbe','cell-yekshanbe','cell-doshshanbe','cell-seshshanbe','cell-chaharshanbe'];
     for(var d=0;d<5;d++){
       html=html+'<tr><td>'+days[d]+'</td>';
       for(var i=1;i<=5;i++){
-        html=html+'<td><textarea style="width:100%;min-height:50px;border:1px solid #ddd;padding:6px;border-radius:4px;font-family:inherit" id="c'+d+i+'"></textarea></td>';
+        html=html+'<td class="'+dayClasses[d]+'"><textarea style="width:100%;min-height:50px;border:1px solid rgba(0,0,0,0.1);padding:6px;border-radius:8px;font-family:inherit;font-size:13px" id="c'+d+i+'" placeholder="زنگ '+(i)+'"></textarea></td>';
       }
       html=html+'</tr>';
     }
@@ -2812,13 +2861,35 @@ function teacherScript() {
   
   function renderResizePreview(){
     const box=document.getElementById('resize-preview');
-    if(!RESIZE_IMAGES.length){box.innerHTML='';return;}
+    if(!RESIZE_IMAGES.length){box.innerHTML='';updateTotalInfo();return;}
     box.innerHTML=RESIZE_IMAGES.map((r,i)=>{
       const origSize=(r.file.size/1024).toFixed(1);
-      return '<div class="resize-item"><button class="remove-btn" onclick="removeResizeImg('+i+')">×</button><img src="'+r.original+'" alt=""><div class="size-info">'+origSize+' KB</div></div>';
+      return '<div class="resize-item"><button class="remove-btn" onclick="removeResizeImg('+i+')">×</button><img src="'+r.original+'" alt=""><div class="size-info">'+origSize+' KB<br>'+r.img.width+'×'+r.img.height+'</div></div>';
     }).join('');
+    updateTotalInfo();
   }
   window.removeResizeImg=(i)=>{RESIZE_IMAGES.splice(i,1);renderResizePreview();if(!RESIZE_IMAGES.length)document.getElementById('resize-controls').classList.add('hidden');};
+  
+  // Update total info
+  function updateTotalInfo(){
+    const el=document.getElementById('total-original-size');
+    const nel=document.getElementById('total-new-size');
+    const rel=document.getElementById('total-reduction');
+    if(!el||!nel||!rel)return;
+    if(!RESIZE_IMAGES.length){
+      el.textContent='-';nel.textContent='-';rel.textContent='-';
+      return;
+    }
+    const totalOrig=RESIZE_IMAGES.reduce((s,r)=>s+r.file.size,0);
+    el.textContent=(totalOrig/1024/1024).toFixed(2)+' MB';
+    // Estimate new size based on quality
+    const q=parseInt(document.getElementById('resize-quality').value,10)/100;
+    const fmt=document.querySelector('.format-btn.active')?.dataset.format||'jpeg';
+    let estNew=totalOrig*q*0.7; // Rough estimate
+    nel.textContent=(estNew/1024/1024).toFixed(2)+' MB';
+    const reduction=Math.round((1-estNew/totalOrig)*100);
+    rel.textContent=reduction+'٪ کاهش';
+  }
   
   // Quality estimate
   document.getElementById('resize-quality').addEventListener('input',function(){
@@ -2827,31 +2898,45 @@ function teacherScript() {
     const avgSize=RESIZE_IMAGES.length?RESIZE_IMAGES.reduce((s,r)=>s+r.file.size,0)/RESIZE_IMAGES.length:500000;
     const est=Math.round(avgSize*(q/100));
     document.getElementById('quality-estimate').textContent='حدود '+(est/1024).toFixed(0)+' KB';
+    updateTotalInfo();
   });
   
   // Format selection
   document.querySelectorAll('.format-btn').forEach(btn=>{
-    btn.onclick=()=>{document.querySelectorAll('.format-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');};
+    btn.onclick=()=>{document.querySelectorAll('.format-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');updateTotalInfo();};
+  });
+  
+  // Size selection
+  document.querySelectorAll('input[name="resize-size"]').forEach(radio=>{
+    radio.addEventListener('change',updateTotalInfo);
   });
   
   document.getElementById('btn-resize-all').onclick=()=>{
     if(!RESIZE_IMAGES.length){toast('ابتدا عکس انتخاب کنید');return;}
     const q=parseInt(document.getElementById('resize-quality').value,10)/100;
     const fmt=document.querySelector('.format-btn.active').dataset.format;
+    const sizeOpt=document.querySelector('input[name="resize-size"]:checked').value;
     const mime=fmt==='png'?'image/png':fmt==='webp'?'image/webp':'image/jpeg';
     const ext=fmt==='png'?'png':fmt==='webp'?'webp':'jpg';
     
     RESIZE_IMAGES.forEach((r,i)=>{
-      // حفظ اندازه اصلی عکس
+      let w=r.img.width, h=r.img.height;
+      if(sizeOpt!=='original'){
+        const maxSize=parseInt(sizeOpt);
+        if(w>maxSize||h>maxSize){
+          const ratio=Math.min(maxSize/w,maxSize/h);
+          w=Math.round(w*ratio);
+          h=Math.round(h*ratio);
+        }
+      }
       const cv=document.createElement('canvas');
-      cv.width=r.img.width;
-      cv.height=r.img.height;
+      cv.width=w;cv.height=h;
       const ctx=cv.getContext('2d');
-      ctx.drawImage(r.img,0,0);
+      ctx.drawImage(r.img,0,0,w,h);
       cv.toBlob(blob=>{
         const a=document.createElement('a');
         a.href=URL.createObjectURL(blob);
-        a.download='عکس_'+(i+1)+'_فشرده.'+ext;
+        a.download='عکس_'+(i+1)+'_'+w+'x'+h+'.'+ext;
         document.body.appendChild(a);a.click();a.remove();
       },mime,q);
     });
