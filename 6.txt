@@ -1270,7 +1270,6 @@ function teacherPage() {
         <div class="tab" data-tab="resize">🗜️ کاهش حجم</div>
         <div class="tab" data-tab="crop">✂️ برش عکس</div>
         <div class="tab" data-tab="pdf2img">📄 PDF به عکس</div>
-        <div class="tab" data-tab="pdf2word">📝 PDF به Word</div>
         <div class="tab" data-tab="ai">🤖 هوش مصنوعی</div>
         <div class="tab" data-tab="settings">⚙️ تنظیمات</div>
         <div style="flex:1"></div>
@@ -1738,8 +1737,6 @@ function teacherPage() {
         
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
         <script>pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-        
         <div class="upload-zone" id="pdf-drop-zone">
           <input type="file" accept="application/pdf" id="pdf-file" class="hidden">
           <div class="upload-icon">📄</div>
@@ -1810,12 +1807,6 @@ function teacherPage() {
       </div>
 
       <!-- تبدیل PDF به Word -->
-      <div class="card tab-content hidden" id="tab-pdf2word">
-        <div class="section-header">
-          <div>
-            <h3>📝 تبدیل PDF به Word</h3>
-            <p class="muted">محتوای متنی PDF را به فایل Word تبدیل کنید</p>
-          </div>
         </div>
         
         <div class="upload-zone" id="word-drop-zone">
@@ -2726,46 +2717,9 @@ function teacherScript() {
     if(f===t.value){t.value=f==='fa'?'en':'fa';}
   };
   
-  // ---- ترجمه پیشرفته ----
-  const LANG_NAMES={'auto':'تشخیص خودکار','fa':'فارسی','en':'انگلیسی','ar':'عربی','tr':'ترکی','ru':'روسی','zh':'چینی','fr':'فرانسوی','de':'آلمانی','es':'اسپانیایی','ja':'ژاپنی','ko':'کره‌ای'};
-  
-  let tlFileContent=null;
-  
-  // Load history
-  let tlHistory=JSON.parse(localStorage.getItem('tlHistory')||'[]');
-  function renderTlHistory(){
-    const box=document.getElementById('tl-history');
-    const noHist=document.getElementById('tl-no-history');
-    if(!tlHistory.length){
-      noHist.style.display='block';
-      box.innerHTML=noHist.outerHTML;
-      return;
-    }
-    noHist.style.display='none';
-    box.innerHTML=tlHistory.slice(0,10).map((h,i)=>
-      '<div style="padding:10px;background:#f8fafc;border-radius:8px;margin-bottom:8px;cursor:pointer" onclick="tlRestore('+i+')">'+
-        '<div style="display:flex;justify-content:space-between;align-items:center">'+
-          '<span><b>'+LANG_NAMES[h.from]+'</b> → <b>'+LANG_NAMES[h.to]+'</b></span>'+
-          '<span style="color:#888;font-size:12px">'+h.time+'</span>'+
-        '</div>'+
-        '<div style="font-size:13px;color:#666;margin-top:4px" class="tl-hist-preview">'+h.input.substring(0,50)+(h.input.length>50?'...':'')+'</div>'+
-      '</div>'
-    ).join('');
-  }
-  renderTlHistory();
-  
-  window.tlRestore=function(i){
-    const h=tlHistory[i];
-    document.getElementById('tl-from').value=h.from;
-    document.getElementById('tl-to').value=h.to;
-    document.getElementById('tl-input').value=h.input;
-    document.getElementById('tl-output').value=h.output;
-  };
-  
   window.tlSwap=function(){
     var f=document.getElementById('tl-from');
     var t=document.getElementById('tl-to');
-    if(f.value==='auto'){toast('نمی‌توان زبان مقصد را با تشخیص خودکار جابجا کرد');return;}
     var tmp=f.value;f.value=t.value;t.value=tmp;
     var inp=document.getElementById('tl-input');
     var out=document.getElementById('tl-output');
@@ -2781,66 +2735,19 @@ function teacherScript() {
   window.tlClear=function(){
     document.getElementById('tl-input').value='';
     document.getElementById('tl-output').value='';
-    document.getElementById('tl-detected').style.display='none';
   };
-  
-  window.tlRemoveFile=function(){
-    tlFileContent=null;
-    document.getElementById('tl-file-info').classList.add('hidden');
-    document.getElementById('tl-file-zone').classList.remove('hidden');
-    document.getElementById('tl-file-input').value='';
-  };
-  
-  // File upload for translation
-  const tlFileZone=document.getElementById('tl-file-zone');
-  const tlFileInput=document.getElementById('tl-file-input');
-  tlFileZone.onclick=()=>tlFileInput.click();
-  tlFileZone.addEventListener('dragover',e=>{e.preventDefault();tlFileZone.classList.add('dragover');});
-  tlFileZone.addEventListener('dragleave',()=>tlFileZone.classList.remove('dragover'));
-  tlFileZone.addEventListener('drop',e=>{e.preventDefault();tlFileZone.classList.remove('dragover');if(e.dataTransfer.files[0])handleTlFile(e.dataTransfer.files[0]);});
-  tlFileInput.addEventListener('change',function(){if(this.files[0])handleTlFile(this.files[0]);});
-  
-  async function handleTlFile(file){
-    document.getElementById('tl-file-name').textContent=file.name;
-    document.getElementById('tl-file-size').textContent=(file.size/1024).toFixed(1)+' KB';
-    document.getElementById('tl-file-info').classList.remove('hidden');
-    document.getElementById('tl-file-zone').classList.add('hidden');
-    
-    const text=await file.text();
-    tlFileContent=text;
-    document.getElementById('tl-input').value=text;
-    toast('فایل لود شد ✅');
-  }
   
   document.getElementById('btn-translate').onclick=async function(){
     var text=document.getElementById('tl-input').value.trim();
     if(!text){toast('متنی وارد نشده');return;}
     var from=document.getElementById('tl-from').value;
     var to=document.getElementById('tl-to').value;
-    if(from===to){toast('زبان مبدا و مقصد یکسان هستند');return;}
     var btn=this;btn.disabled=true;btn.textContent='⏳ در حال ترجمه...';
-    document.getElementById('tl-detected').style.display='none';
     try{
-      var apiFrom=from==='auto'?'fa':from;
-      var res=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair='+apiFrom+'|'+to);
+      var res=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair='+from+'|'+to);
       var data=await res.json();
       if(data.responseStatus===200 && data.responseData){
-        var result=data.responseData.translatedText;
-        document.getElementById('tl-output').value=result;
-        
-        // Save to history
-        var entry={from:from==='auto'?'fa':from,to:to,input:text,output:result,time:'الان'};
-        tlHistory.unshift(entry);
-        tlHistory=tlHistory.slice(0,20);
-        localStorage.setItem('tlHistory',JSON.stringify(tlHistory));
-        renderTlHistory();
-        
-        // Show detected language
-        if(from==='auto' && data.responseData.detectedLang){
-          document.getElementById('tl-detected').style.display='inline-flex';
-          document.getElementById('tl-detected-lang').textContent=LANG_NAMES[data.responseData.detectedLang]||data.responseData.detectedLang;
-        }
-        
+        document.getElementById('tl-output').value=data.responseData.translatedText;
         toast('ترجمه شد ✅');
       }else{toast('خطا در ترجمه');}
     }catch(e){toast('خطا در اتصال');}
@@ -3495,95 +3402,6 @@ function teacherScript() {
       },i*300);
     });
     toast('دانلود '+blobs.length+' فایل شروع شد ✅');
-  };
-
-  // ---- PDF to Word ----
-  let wordPdfDoc=null, wordFileName='';
-  
-  const wordDropZone=document.getElementById('word-drop-zone');
-  const wordFileInput=document.getElementById('word-file');
-  wordDropZone.onclick=()=>wordFileInput.click();
-  wordDropZone.addEventListener('dragover',e=>{e.preventDefault();wordDropZone.classList.add('dragover');});
-  wordDropZone.addEventListener('dragleave',()=>wordDropZone.classList.remove('dragover'));
-  wordDropZone.addEventListener('drop',e=>{e.preventDefault();wordDropZone.classList.remove('dragover');handleWordFile(e.dataTransfer.files[0]);});
-  wordFileInput.addEventListener('change',function(){if(this.files[0])handleWordFile(this.files[0]);});
-  
-  async function handleWordFile(file){
-    if(!file||file.type!=='application/pdf'){toast('فقط فایل PDF مجاز است');return;}
-    wordFileName=file.name;
-    document.getElementById('word-pdf-name').textContent=file.name;
-    document.getElementById('word-controls').classList.remove('hidden');
-    const arrayBuffer=await file.arrayBuffer();
-    wordPdfDoc=await PDFLib.PDFDocument.load(arrayBuffer);
-    document.getElementById('word-pages-count').textContent=wordPdfDoc.getPageCount();
-    document.getElementById('word-preview-content').innerHTML='<p class="muted">برای مشاهده متن، روی "تبدیل به Word" کلیک کنید</p>';
-    document.getElementById('btn-word-download').disabled=true;
-  }
-  
-  document.getElementById('word-remove').onclick=()=>{
-    wordPdfDoc=null;wordFileName='';
-    document.getElementById('word-controls').classList.add('hidden');
-    document.getElementById('word-file').value='';
-    document.getElementById('word-preview-content').innerHTML='';
-  };
-  
-  document.getElementById('btn-word-convert').onclick=async()=>{
-    if(!wordPdfDoc){toast('ابتدا فایل PDF را انتخاب کنید');return;}
-    const btn=document.getElementById('btn-word-convert');
-    btn.disabled=true;btn.textContent='در حال پردازش...';
-    try{
-      const keepFormat=document.getElementById('word-keep-format').checked;
-      const isRTL=document.getElementById('word-rtl').checked;
-      const addNumbers=document.getElementById('word-numbers').checked;
-      const pages=wordPdfDoc.getPages();
-      let html='<html><head><meta charset="utf-8">';
-      html+='<style>body{font-family:"BNazanin",Tahoma,Arial;direction:'+(isRTL?'rtl':'ltr')+';padding:20px;line-height:2;white-space:pre-wrap}.page{margin-bottom:30px;border-bottom:1px solid #ddd;padding-bottom:20px}.pnum{text-align:center;color:#888;font-size:12px;margin-bottom:10px}</style>';
-      html+='</head><body>';
-      for(let pi=0;pi<pages.length;pi++){
-        const page=pages[pi];
-        if(addNumbers)html+='<div class="page">';
-        if(addNumbers)html+='<div class="pnum">صفحه '+(pi+1)+'</div>';
-        const text=await page.getTextContent();
-        let para='';
-        if(keepFormat){
-          const items=text.items;
-          let lastY=null;
-          for(const item of items){
-            const y=Math.round(item.transform[5]);
-            if(lastY!==null&&y!==lastY){
-              html+=(para?'</p>':'')+'<p style="margin:4px 0">'+item.str;
-              para=true;
-            }else{
-              html+=item.str;
-            }
-            lastY=y;
-          }
-          if(para)html+='</p>';
-        }else{
-          html+='<p>'+text.items.map(i=>i.str).join(' ')+'</p>';
-        }
-        if(addNumbers)html+='</div>';
-      }
-      html+='</body></html>';
-      document.getElementById('word-preview-content').innerHTML=html;
-      window._wordHtml=html;
-      window._wordFileName=wordFileName.replace('.pdf','.html');
-      document.getElementById('btn-word-download').disabled=false;
-      toast('تبدیل انجام شد ✅');
-    }catch(err){
-      toast('خطا در پردازش PDF: '+err.message);
-    }
-    btn.disabled=false;btn.innerHTML='<span>🔄</span> تبدیل به Word';
-  };
-  
-  document.getElementById('btn-word-download').onclick=()=>{
-    if(!window._wordHtml){toast('ابتدا تبدیل را انجام دهید');return;}
-    const blob=new Blob([window._wordHtml],{type:'application/msword'});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=window._wordFileName||'document.doc';
-    a.click();
-    toast('فایل Word دانلود شد ✅');
   };
 
   checkAuth();
