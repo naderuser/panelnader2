@@ -1270,6 +1270,7 @@ function teacherPage() {
         <div class="tab" data-tab="resize">🗜️ کاهش حجم</div>
         <div class="tab" data-tab="crop">✂️ برش عکس</div>
         <div class="tab" data-tab="pdf2img">📄 PDF به عکس</div>
+        <div class="tab" data-tab="pdf2word">📝 PDF به Word</div>
         <div class="tab" data-tab="ai">🤖 هوش مصنوعی</div>
         <div class="tab" data-tab="settings">⚙️ تنظیمات</div>
         <div style="flex:1"></div>
