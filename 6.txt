@@ -1806,61 +1806,6 @@ function teacherPage() {
         </div>
       </div>
 
-      <!-- تبدیل PDF به Word -->
-        </div>
-        
-        <div class="upload-zone" id="word-drop-zone">
-          <input type="file" accept="application/pdf" id="word-file" class="hidden">
-          <div class="upload-icon">📄</div>
-          <p>فایل PDF را اینجا رها کنید یا کلیک کنید</p>
-          <span class="muted">تبدیل به Word با حفظ پاراگراف‌ها</span>
-        </div>
-        
-        <div id="word-controls" class="hidden" style="margin-top:16px">
-          <div class="pdf-info" style="margin-bottom:16px;padding:12px;background:#f0fdf4;border-radius:8px;border:2px solid #bbf7d0">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div>
-                <strong id="word-pdf-name">فایل PDF</strong>
-                <span class="muted" style="margin-right:12px">تعداد صفحات: <strong id="word-pages-count">0</strong></span>
-              </div>
-              <button class="btn sm danger" id="word-remove">🗑️ حذف</button>
-            </div>
-          </div>
-          
-          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:16px">
-            <h4 style="margin-bottom:12px">⚙️ تنظیمات تبدیل</h4>
-            <div style="display:flex;flex-wrap:wrap;gap:16px">
-              <label class="checkbox-label">
-                <input type="checkbox" id="word-keep-format" checked>
-                حفظ قالب‌بندی پاراگراف‌ها
-              </label>
-              <label class="checkbox-label">
-                <input type="checkbox" id="word-rtl" checked>
-                جهت راست به چپ (RTL)
-              </label>
-              <label class="checkbox-label">
-                <input type="checkbox" id="word-numbers">
-                شماره‌گذاری صفحات
-              </label>
-            </div>
-          </div>
-          
-          <div id="word-preview" style="max-height:400px;overflow-y:auto;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:16px">
-            <h4 style="margin-bottom:12px">📋 پیش‌نمایش متن:</h4>
-            <div id="word-preview-content" style="font-family:'BNazanin',tahoma,serif;line-height:2;text-align:right;direction:rtl"></div>
-          </div>
-          
-          <div style="display:flex;gap:12px;flex-wrap:wrap">
-            <button class="btn primary" id="btn-word-convert">
-              <span>🔄</span> تبدیل به Word
-            </button>
-            <button class="btn success" id="btn-word-download" disabled>
-              <span>📥</span> دانلود Word
-            </button>
-          </div>
-        </div>
-      </div>
-
       <!-- هوش مصنوعی -->
       <div class="card tab-content hidden" id="tab-ai">
         <div class="ai-chat-container">
